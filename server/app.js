@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const bodyParser = require('body-parser');
 var cors = require("cors");
 var pool = require('mysql');
 
@@ -27,6 +28,9 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use("/testAPI", testAPIRouter);
 
+// parse application/json
+app.use(bodyParser.json());
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -41,6 +45,21 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+
+//add new user
+app.post('/store-data',(req, res) => {
+  let data = {name: req.body.name};
+  let sql = "INSERT INTO users SET ?";
+  console.log("here");
+  let query = pool.con.query(sql, data,(err, results) => {
+    if(err) throw err;
+    res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+  });
+});
+ 
+app.listen(3000, () => {
+  console.log("Server running successfully on 3000");
 });
 
 module.exports = app;
