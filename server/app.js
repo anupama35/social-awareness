@@ -5,7 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const bodyParser = require('body-parser');
 var cors = require("cors");
-var pool = require('mysql');
+var dbConnection = require('mysql');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -27,6 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use("/testAPI", testAPIRouter);
+// app.use("/register", registerRouter);
 
 // parse application/json
 app.use(bodyParser.json());
@@ -48,18 +49,18 @@ app.use(function(err, req, res, next) {
 });
 
 //add new user
-app.post('/store-data',(req, res) => {
-  let data = {name: req.body.name};
-  let sql = "INSERT INTO users SET ?";
-  console.log("here");
-  let query = pool.con.query(sql, data,(err, results) => {
+app.post("/register",(req, res) => {
+  let data = {username: req.body.username, password: req.body.password, email:req.body.email};
+  console.log(data);
+  let sql = "INSERT INTO user (username, password, email) VALUES (?,?,?)";
+  let query = dbConnection.con.query(sql, data,(err, results) => {
     if(err) throw err;
     res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
   });
 });
  
-app.listen(3000, () => {
-  console.log("Server running successfully on 3000");
+app.listen(9000, () => {
+  console.log("Server running successfully on 9000");
 });
 
 module.exports = app;
